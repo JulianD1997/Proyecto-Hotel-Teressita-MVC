@@ -1,8 +1,7 @@
-from multiprocessing.connection import Client
-import tkinter
 from datetime import datetime
-import model.database as db
+import tkinter
 import model.client as client_model
+import model.database as db
 import model.hotel_model as hotel_model
 import view.gui as view
 
@@ -12,6 +11,7 @@ class Controller :
         self.root = tkinter.TK()
         self.control_hotel_model = hotel_model.Hotel_model()
         self.control_db = db.Database("Hotel Teressita")
+        self.create_table()
         self.control_view = view.Interface(self.root)
 
     def run_window(self):
@@ -53,18 +53,13 @@ class Controller :
                     "Hubo un error, el cliente no fue guardado")
     
     def read_clients(self,name,last_name,dni,room,entry_date,exit_date):
-        clients_dict = {}
         query = """--sql
             SELECT * FROM Clientes  ORDER BY apellido ASC;
             """
         data = self.control_db(query)
-        for client in data:
-            clients_dict[client[0]] = list(client_model.Client(
-                client[1], client[2], client[3], client[4], client[5], client[6]))
-        return clients_dict
+        return self.control_hotel_model.clients_data_estructure(data)
     
     def query_client(self,name,last_name,dni,room,entry_date,exit_date):
-        clients_dict={}
         search_name = search_last_name = search_dni = search_room = "%%"
         search_entry_date = "0000-01-01"
         search_exit_date = "9999-12-31"
@@ -96,10 +91,7 @@ class Controller :
         if len(data) == 0:
             return ("Consultar","El cliente no existe")
         else:
-            for client in data:
-                clients_dict[client[0]] = list(client_model.Client(
-                client[1], client[2], client[3], client[4], client[5], client[6]))
-            return clients_dict
+            return self.control_hotel_model.clients_data_estructure(data)
     
     def update_client(self,id,name,last_name,dni,room,entry_date,exit_date):
         entry = self.control_hotel_model.date_model(entry_date)

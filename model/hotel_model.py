@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing_extensions import Self
+import model.client as client_mode
 
 class Hotel_model :
     __hotel_rooms = ["101", "102", "103", "104", "201", "202",
@@ -21,4 +21,9 @@ class Hotel_model :
                 set(self.__hotel_rooms) - set(occupied_rooms)))
             return free_rooms
 
-
+    def clients_data_estructure(self,data):
+        clients_dict = {}
+        for client in data:
+            clients_dict[client[0]] = list(client_mode.Client(
+                client[1], client[2], client[3], client[4], client[5], client[6]))
+        return clients_dict
