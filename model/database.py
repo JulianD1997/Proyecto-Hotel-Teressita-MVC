@@ -22,9 +22,9 @@ class Database :
         finally:
             self.connection.commit()
 
-    def read(self,query,):
+    def read(self,query,parameters=()):
         try:
-            self.cursor.execute(query)
+            self.cursor.execute(query, parameters)
             return self.cursor.fetchall()
         except Exception:
             traceback.print_exc()

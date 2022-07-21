@@ -1,5 +1,5 @@
 
-class Person():
+class Person:
     def __init__(self,name,last_name,dni):
         self.__name = name
         self.__last_name = last_name
