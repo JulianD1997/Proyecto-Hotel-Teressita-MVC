@@ -2,6 +2,7 @@ import tkinter
 from tkinter import ttk
 from tkcalendar import DateEntry
 
+#interface 
 class Interface():
     __name = tkinter.StringVar()
     __last_name = tkinter.StringVar()
