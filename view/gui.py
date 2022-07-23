@@ -1,13 +1,16 @@
-from ssl import DER_cert_to_PEM_cert
-import tkinter
-from tkinter import ttk
+from datetime import datetime
+from click import command
 from tkcalendar import DateEntry
+import tkinter
+from tkinter import messagebox
+from tkinter import ttk
 
 class Interface ():
-
+    """Se inicializa todas las variables que tendra nuestra interfaz"""
     def __init__(self,root,controller):
         self.controller = controller
         self.root = root
+        self.id_client = None
         self.name_client = tkinter.StringVar()
         self.last_name = tkinter.StringVar()
         self.dni = tkinter.StringVar()
@@ -110,19 +113,19 @@ class Interface ():
     def __buttons(self):
         self.__action_button = ttk.Button(self.__forms_frame, textvariable=self.variable_button,
                         padding="10 5 10 5", command=
-                        lambda : self.controller.action_press(self.variable_button.get()))
+                        lambda : self.controller.action_press(self.format_data_client()))
         self.__create_button = ttk.Button(self.__tools_frame, text="Crear", padding="10 5 10 5",
-                        command= lambda : self.variable_button.set("Guardar"))
+                        command= lambda : self.set_variables("Guardar"))
         self.__clients_button = ttk.Button(self.__tools_frame, text="Clientes", padding="10 5 10 5",
-                        command= lambda : self.controller.read_clients(self.tree))
+                        command= lambda : self.set_variables('Clientes'))
         self.__query_button = ttk.Button(self.__tools_frame, text="Consultar",
                             padding="10 5 10 5",
-                            command=lambda: self.variable_button.set("Buscar"))
+                            command=lambda: self.set_variables("Buscar"))
         self.__update_button = ttk.Button(self.__tools_frame, text="Actualizar",
                             padding="10 5 10 5",
-                            command=lambda : self.variable_button.set("Actualizar"))
+                            command=lambda : self.__show_data(self))
         self.__delete_button = ttk.Button(self.__tools_frame, text="Borrar",
-                        padding="10 5 10 5", command = lambda : self.controller.action_press('Borrar'))
+                        padding="10 5 10 5", command = lambda : self.controller.delete_client())
         
         self.__action_button.grid(column=5, row=2, sticky="W", pady=10)
         self.__create_button.grid(column=0, row=0, sticky="W", padx=20)
@@ -155,10 +158,75 @@ class Interface ():
         self.tree.column('fecha salida', width=100, minwidth=10)
         self.tree.heading('fecha salida', text='Fecha Salida')
         self.tree.bind('<B1-Motion>', self.__recize_false)
-        self.controller.read_clients(self.tree)        
+        self.tree.bind('<Double-1>', self.__show_data)
+        self.controller.read_clients(self.tree)
 
+    """Establecer las variables de la clase (borrar formularios, control de habitacion y borrar etiquetas"""
+    def set_variables(self,action=""):
+        self.name_client.set("")
+        self.last_name.set("")
+        self.dni.set("")
+        self.room.set("Seleccionar")
+        if action == 'Clientes':
+            self.controller.read_clients(self.tree)
+        elif action == "Buscar":
+            self.variable_button.set("Buscar")
+            self.entry_date.set("")
+            self.exit_date.set("")
+        else:
+            self.variable_button.set("Guardar")
+            today = datetime.now()
+            date = str(today.strftime("%Y-%m-%d"))
+            self.entry_date.set(date)
+            self.exit_date.set(date)
+        self.controller.avalible_rooms('',self.variable_button,self.room_form,self.entry_date,self.exit_date)
+        self.set_labels()
+
+    def set_labels(self):
+        self.name_error.set("")
+        self.last_name_error.set("")
+        self.dni_error.set("")
+        self.room_error.set("")
+    
+    """Enviar datos elegidos del tree view a los formularios """
+    def __show_data(self,event=''):
+        try :
+            self.variable_button.set("Actualizar")
+            client = self.tree.item(self.tree.focus())
+            self.id_client = client['text']
+            self.name_client.set(client['values'][0])
+            self.last_name.set(client['values'][1])
+            self.dni.set(client['values'][2])
+            self.room.set((client['values'][3]))
+            self.entry_date.set(str(client['values'][4]))
+            self.exit_date.set(str(client['values'][5]))
+        except :
+            self.message_box(('Actualizar','Seleccione el cliente que quiere actualizar'))
+    
+    """Eventos del tree view como doble clip y clip sostenido"""         
     def __recize_false(self,event):
         return "break"
     
     def __date_event(self,evevent):
         self.controller.avalible_rooms("date_selected",self.variable_button,self.room_form,self.entry_date,self.exit_date)
+    
+    """Estructura de datos de los formularios, que se enviaran al contralador para sus diferentes manipulaciones"""
+    def format_data_client(self):
+        data = {'id_client': self.id_client,
+                'name': self.name_client.get().title(),
+                'last_name': self.last_name.get().title(),
+                'dni': self.dni.get(),
+                'room': self.room.get(),
+                'entry_date': self.entry_date.get(),
+                'exit_date': self.exit_date.get()
+                }
+        return data
+    
+    """Metodo para enviar mensajes de alerta al usuario"""
+    def message_box(self,message=''):
+        if message != '':
+            messagebox.showinfo(message[0],message[1])
+        else:
+            ask= messagebox.askyesno("Borrar cliente",
+                                    "¿Desea borrar el cliente?")
+            return ask

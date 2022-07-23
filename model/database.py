@@ -1,7 +1,8 @@
 import sqlite3
 import traceback
-
+"""modelo de la base de datos"""
 class Database :
+
     def __init__(self,db_name):
         self.connection = sqlite3.connect(db_name)
         self.cursor = self.connection.cursor()

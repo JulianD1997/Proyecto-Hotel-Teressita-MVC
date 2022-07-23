@@ -1,4 +1,4 @@
-
+"""Modelo cliente"""
 class Person:
     def __init__(self,name,last_name,dni):
         self.__name = name
