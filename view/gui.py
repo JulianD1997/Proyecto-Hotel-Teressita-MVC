@@ -1,5 +1,4 @@
 from datetime import datetime
-from click import command
 from tkcalendar import DateEntry
 import tkinter
 from tkinter import messagebox
@@ -22,8 +21,8 @@ class Interface ():
         self.last_name_error = tkinter.StringVar()
         self.dni_error = tkinter.StringVar()
         self.room_error = tkinter.StringVar()
-        self.room.set("Seleccionar")
-        self.variable_button.set("Guardar")
+        self.room.set("Select")
+        self.variable_button.set("Save")
         self.__frames()
         self.__labels()
         self.room_form = ttk.Combobox(self.__forms_frame, textvariable=self.room,
@@ -40,9 +39,9 @@ class Interface ():
 
     def __frames(self):
         self.__main_frame = ttk.Frame(self.root,padding=10)
-        self.__forms_frame = ttk.LabelFrame(self.__main_frame,text="Formulario cliente",padding=10)
-        self.__data_list_frame = ttk.LabelFrame(self.__main_frame,text="Lista de clientes",padding=10)
-        self.__tools_frame = ttk.LabelFrame(self.__main_frame,text="Herramientas",padding=10)
+        self.__forms_frame = ttk.LabelFrame(self.__main_frame,text="Client Form",padding=10)
+        self.__data_list_frame = ttk.LabelFrame(self.__main_frame,text="Clients list",padding=10)
+        self.__tools_frame = ttk.LabelFrame(self.__main_frame,text="Tools",padding=10)
 
         self.__main_frame.grid(column=0, row=0)
         self.__forms_frame.grid(column=0, row=0)
@@ -50,12 +49,12 @@ class Interface ():
         self.__tools_frame.grid(column=0, row=2, pady=5)
 
     def __labels(self):
-        self.__label_name = ttk.Label(self.__forms_frame, text="Nombre")
-        self.__label_last_name = ttk.Label(self.__forms_frame, text="Apellido")
+        self.__label_name = ttk.Label(self.__forms_frame, text="Name")
+        self.__label_last_name = ttk.Label(self.__forms_frame, text="Last Name")
         self.__label_dni = ttk.Label(self.__forms_frame, text="DNI")
-        self.__label_room = ttk.Label(self.__forms_frame, text="Habitacion")
-        self.__label_entry_date = ttk.Label(self.__forms_frame, text="Fecha de Ingreso")
-        self.__label_exit_date = ttk.Label(self.__forms_frame, text="Fechas de salida")
+        self.__label_room = ttk.Label(self.__forms_frame, text="Room")
+        self.__label_entry_date = ttk.Label(self.__forms_frame, text="Date Entry")
+        self.__label_exit_date = ttk.Label(self.__forms_frame, text="Date exit")
         
         self.__label_name_error = ttk.Label(self.__forms_frame, textvariable=self.name_error,
                                     foreground="Red")
@@ -79,6 +78,7 @@ class Interface ():
         self.__label_room_error.grid(column=3, row=2, sticky='W N', padx=5)
 
     def __forms(self):
+        today = datetime.now()
         self.__name_form = ttk.Entry(self.__forms_frame, validate="all",
                             validatecommand=(self.__forms_frame.register(
                                 self.controller.validate_string), '%P'),
@@ -94,11 +94,13 @@ class Interface ():
         self.entry_date_form = DateEntry(self.__forms_frame, selectmode="dia",
                                         date_pattern='yyyy-MM-dd',
                                         textvariable=self.entry_date,
-                                        state="readonly")
+                                        state="readonly",
+                                        mindate=today)
         self.__exit_date_form = DateEntry(self.__forms_frame, selectmode="dia",
                                         date_pattern='yyyy-MM-dd',
                                         textvariable=self.exit_date,
-                                        state="readonly")
+                                        state="readonly",
+                                        mindate=today)
 
         self.__name_form.grid(column=0, row=1, sticky="W", padx=5)
         self.__last_name_form.grid(column=1, row=1, sticky="W", padx=5)
@@ -114,17 +116,17 @@ class Interface ():
         self.__action_button = ttk.Button(self.__forms_frame, textvariable=self.variable_button,
                         padding="10 5 10 5", command=
                         lambda : self.controller.action_press(self.format_data_client()))
-        self.__create_button = ttk.Button(self.__tools_frame, text="Crear", padding="10 5 10 5",
-                        command= lambda : self.set_variables("Guardar"))
-        self.__clients_button = ttk.Button(self.__tools_frame, text="Clientes", padding="10 5 10 5",
-                        command= lambda : self.set_variables('Clientes'))
-        self.__query_button = ttk.Button(self.__tools_frame, text="Consultar",
+        self.__create_button = ttk.Button(self.__tools_frame, text="Create", padding="10 5 10 5",
+                        command= lambda : self.set_variables("Save"))
+        self.__clients_button = ttk.Button(self.__tools_frame, text="Clients", padding="10 5 10 5",
+                        command= lambda : self.set_variables('Clients'))
+        self.__query_button = ttk.Button(self.__tools_frame, text="Search",
                             padding="10 5 10 5",
-                            command=lambda: self.set_variables("Buscar"))
-        self.__update_button = ttk.Button(self.__tools_frame, text="Actualizar",
+                            command=lambda: self.set_variables("Search"))
+        self.__update_button = ttk.Button(self.__tools_frame, text="Update",
                             padding="10 5 10 5",
                             command=lambda : self.__show_data(self))
-        self.__delete_button = ttk.Button(self.__tools_frame, text="Borrar",
+        self.__delete_button = ttk.Button(self.__tools_frame, text="Delete",
                         padding="10 5 10 5", command = lambda : self.controller.delete_client())
         
         self.__action_button.grid(column=5, row=2, sticky="W", pady=10)
@@ -135,46 +137,44 @@ class Interface ():
         self.__delete_button.grid(column=4, row=0, sticky="W", padx=20)
 
     def __tree_view(self):
-        
         self.__scrol = ttk.Scrollbar(self.__data_list_frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand = self.__scrol)
         self.tree['yscrollcommand'] = self.__scrol.set
-        self.tree['columns'] = ('nombre', 'apellido', 'DNI', 'habitacion',
-                                    'fecha ingreso', 'fecha salida')
+        self.tree['columns'] = ('Name', 'Last Name', 'DNI', 'Room',
+                                    'Date Entry', 'Date Exit')
         self.tree.grid(column=0,row=0)
         self.__scrol.grid(column=1,row=0,sticky=("N,S"))
         self.tree.column('#0', width=50, minwidth=10)
         self.tree.heading('#0', text='ID')
-        self.tree.column('nombre', width=120, minwidth=10)
-        self.tree.heading('nombre', text='Nombre')
-        self.tree.column('apellido', width=120, minwidth=10)
-        self.tree.heading('apellido', text='Apellido')
+        self.tree.column('Name', width=120, minwidth=10)
+        self.tree.heading('Name', text='Name')
+        self.tree.column('Last Name', width=120, minwidth=10)
+        self.tree.heading('Last Name', text='Last Name',)
         self.tree.column('DNI', width=100, minwidth=10)
         self.tree.heading('DNI', text='DNI')
-        self.tree.column('habitacion', width=100, minwidth=10)
-        self.tree.heading('habitacion', text='Habitacion')
-        self.tree.column('fecha ingreso', width=100, minwidth=10)
-        self.tree.heading('fecha ingreso', text='Fecha ingreso')
-        self.tree.column('fecha salida', width=100, minwidth=10)
-        self.tree.heading('fecha salida', text='Fecha Salida')
+        self.tree.column('Room', width=100, minwidth=10)
+        self.tree.heading('Room', text='Room')
+        self.tree.column('Date Entry', width=100, minwidth=10)
+        self.tree.heading('Date Entry', text='Date Entry')
+        self.tree.column('Date Exit', width=100, minwidth=10)
+        self.tree.heading('Date Exit', text='Date Exit')
         self.tree.bind('<B1-Motion>', self.__recize_false)
         self.tree.bind('<Double-1>', self.__show_data)
         self.controller.read_clients(self.tree)
 
-    """Establecer las variables de la clase (borrar formularios, control de habitacion y borrar etiquetas"""
     def set_variables(self,action=""):
         self.name_client.set("")
         self.last_name.set("")
         self.dni.set("")
-        self.room.set("Seleccionar")
-        if action == 'Clientes':
+        self.room.set("Select")
+        if action == 'Clients':
             self.controller.read_clients(self.tree)
-        elif action == "Buscar":
-            self.variable_button.set("Buscar")
+        elif action == "Search":
+            self.variable_button.set("Search")
             self.entry_date.set("")
             self.exit_date.set("")
         else:
-            self.variable_button.set("Guardar")
+            self.variable_button.set("Save")
             today = datetime.now()
             date = str(today.strftime("%Y-%m-%d"))
             self.entry_date.set(date)
@@ -188,10 +188,9 @@ class Interface ():
         self.dni_error.set("")
         self.room_error.set("")
     
-    """Enviar datos elegidos del tree view a los formularios """
     def __show_data(self,event=''):
         try :
-            self.variable_button.set("Actualizar")
+            self.variable_button.set("Update")
             client = self.tree.item(self.tree.focus())
             self.id_client = client['text']
             self.name_client.set(client['values'][0])
@@ -201,16 +200,14 @@ class Interface ():
             self.entry_date.set(str(client['values'][4]))
             self.exit_date.set(str(client['values'][5]))
         except :
-            self.message_box(('Actualizar','Seleccione el cliente que quiere actualizar'))
-    
-    """Eventos del tree view como doble clip y clip sostenido"""         
+            self.message_box(('Update Client','please, You select the client want update'))
+         
     def __recize_false(self,event):
         return "break"
     
     def __date_event(self,evevent):
         self.controller.avalible_rooms("date_selected",self.variable_button,self.room_form,self.entry_date,self.exit_date)
-    
-    """Estructura de datos de los formularios, que se enviaran al contralador para sus diferentes manipulaciones"""
+
     def format_data_client(self):
         data = {'id_client': self.id_client,
                 'name': self.name_client.get().title(),
@@ -222,11 +219,10 @@ class Interface ():
                 }
         return data
     
-    """Metodo para enviar mensajes de alerta al usuario"""
     def message_box(self,message=''):
         if message != '':
             messagebox.showinfo(message[0],message[1])
         else:
-            ask= messagebox.askyesno("Borrar cliente",
-                                    "¿Desea borrar el cliente?")
+            ask= messagebox.askyesno("Delete Client",
+                                    "Do you want to delete this client?")
             return ask

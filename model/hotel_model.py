@@ -11,11 +11,9 @@ class Hotel_model :
     def get_hotel_rooms(self):
         return self.hotel_rooms
 
-    """Formato de fecha"""
     def date_model(self,date):
         return datetime.strptime(date, '%Y-%m-%d').date()
     
-    """Modelo habitaciones del hotel"""
     def avalible_rooms(self,data):
         occupied_rooms = []
         free_rooms = []
@@ -23,12 +21,11 @@ class Hotel_model :
             return self.hotel_rooms
         else:
             for room in data:
-                occupied_rooms.append(room[0])
+                occupied_rooms.append(room)
                 free_rooms = sorted(list(
                     set(self.hotel_rooms) - set(occupied_rooms)))
             return free_rooms
 
-    """formato de datos del cliente """
     def clients_data_estructure(self,data):
         clients_dict = {}
         for client in data:
@@ -36,7 +33,6 @@ class Hotel_model :
             clients_dict[client[0]] = [one_client.get_name(),one_client.get_last_name(),one_client.get_dni(),one_client.get_room(),one_client.get_entry_date(),one_client.get_exit_date()]
         return clients_dict
 
-    """Metodos de validan string y enteros ingresado al sistema"""
     def validate_number(self,*args):
         if not re.match(args[1] if len(args) > 1 else "^[0-9]{0,8}$", args[0]):
             return False
