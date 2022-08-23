@@ -1,5 +1,9 @@
 """Modelo cliente"""
 class Person:
+    """
+        Clase persona con atributos, nombré, apellido y DNI
+        igualmente diferentes métodos para obtener y modificar los datos
+    """
     def __init__(self,name,last_name,dni):
         self.__name = name
         self.__last_name = last_name
@@ -24,6 +28,11 @@ class Person:
         self.__dni = dni
 
 class Client(Person):
+    """
+        Clase Clientes que hereda de la clase persona agregando los atributos
+        habitación fecha de entrada y fecha de salida
+        además de los métodos para modificar y obtener estos datos
+    """
     def __init__(self,name,last_name,dni,room,entry_date,exit_date):
         super().__init__(name,last_name,dni)
         self.__room = room
